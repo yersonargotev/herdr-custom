@@ -10,6 +10,8 @@ upstream source. It is not an official Herdr release.
 - Highlighted active tab; inactive tabs share the bar background; vertical separators.
 - Blue selection marks for Spaces and Agents.
 - Agent name and state dot on the left, state text aligned to the right.
+- Space branch on the left, Git status and change counts on the right; narrow
+  sidebars keep the compact inline layout.
 - The bundled adaptive configuration uses stable workspace names, task and tab
   context, dots for status indicators, and no sidebar row gaps.
 
@@ -61,9 +63,9 @@ GitHub Releases. Apple Silicon uses `macos-aarch64`; Linux x86_64 uses `linux-x8
 Verify the checksum before extraction:
 
 ```sh
-shasum -a 256 -c herdr-custom-0.9.3-custom.3-macos-aarch64.tar.gz.sha256
-tar -xzf herdr-custom-0.9.3-custom.3-macos-aarch64.tar.gz
-./herdr-custom-0.9.3-custom.3-macos-aarch64/bin/herdr-custom --version
+shasum -a 256 -c herdr-custom-0.9.3-custom.4-macos-aarch64.tar.gz.sha256
+tar -xzf herdr-custom-0.9.3-custom.4-macos-aarch64.tar.gz
+./herdr-custom-0.9.3-custom.4-macos-aarch64/bin/herdr-custom --version
 ```
 
 Keep the extracted directory together. You may move it under `~/.local/opt/`
