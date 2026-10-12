@@ -1,0 +1,192 @@
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index 2e8eaaf..103f1ec 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -713,6 +713,45 @@ pub(in crate::client::shell) fn render_workspace_rows(
+         } else {
+             palette.overlay0
+         });
++        // Keep a leading branch opposite the remaining metadata without changing row geometry.
++        if matches!(
++            row.first().map(|token| &token.kind),
++            Some(crate::ui::ResolvedTokenKind::Branch(_))
++        ) && row.len() > 1
++            && !entry.indented
++        {
++            let available = area.right().saturating_sub(2).saturating_sub(x);
++            let render_tokens = |tokens: &[crate::ui::ResolvedToken], width: usize| {
++                crate::ui::resolved_token_spans(
++                    tokens,
++                    (
++                        status_icon(status, indicators),
++                        Style::default().fg(status_color(status, palette)),
++                    ),
++                    Style::default().fg(status_color(status, palette)),
++                    workspace_style,
++                    secondary_style,
++                    Style::default().fg(palette.overlay1),
++                    palette,
++                    width,
++                )
++            };
++            let right = Line::from(render_tokens(&row[1..], usize::from(available)));
++            let right_width = right.width().min(usize::from(available)) as u16;
++            if available >= right_width.saturating_add(5) {
++                let left_width = available - right_width - 2;
++                Paragraph::new(Line::from(render_tokens(
++                    &row[..1],
++                    usize::from(left_width),
++                )))
++                .render(Rect::new(x, y, left_width, 1), buffer);
++                Paragraph::new(right).render(
++                    Rect::new(area.right() - 2 - right_width, y, right_width, 1),
++                    buffer,
++                );
++                continue;
++            }
++        }
+         let spans = crate::ui::resolved_token_spans(
+             row,
+             (
+diff --git a/src/client/shell/tests/visual_trial.rs b/src/client/shell/tests/visual_trial.rs
+index 588dc64..ed55014 100644
+--- a/src/client/shell/tests/visual_trial.rs
++++ b/src/client/shell/tests/visual_trial.rs
+@@ -93,3 +93,112 @@ fn visual_trial_agent_state_stays_right_aligned() {
+         }
+     }
+ }
++
++#[test]
++fn visual_trial_branch_and_changes_use_opposite_edges() {
++    use crate::ui::{ResolvedToken, ResolvedTokenKind};
++    let config = ClientShellConfig::from_config(&Config::default());
++    for width in [18, 24, 36] {
++        for status in ["clean", "+2 · ~3"] {
++            let area = Rect::new(0, 0, width, 2);
++            let mut buffer = Buffer::empty(area);
++            let token = |text: &str| ResolvedToken {
++                kind: ResolvedTokenKind::Custom(text.into()),
++                style: Default::default(),
++            };
++            super::super::sidebar::render_workspace_rows(
++                &mut buffer,
++                area,
++                AgentStatus::Idle,
++                Default::default(),
++                &WorkspaceEntry {
++                    index: 0,
++                    indented: false,
++                    last_child: false,
++                },
++                vec![
++                    vec![token("dots")],
++                    vec![
++                        ResolvedToken {
++                            kind: ResolvedTokenKind::Branch("main".into()),
++                            style: Default::default(),
++                        },
++                        token(status),
++                    ],
++                ],
++                true,
++                false,
++                false,
++                false,
++                &config.palette,
++            );
++            let text = (0..width)
++                .map(|x| buffer[(x, 1)].symbol())
++                .collect::<String>();
++            assert!(text.contains("main"), "{text}");
++            assert!(text.ends_with(&format!("{status}  ")), "{text}");
++            assert_eq!(buffer[(3, 1)].symbol(), "m");
++        }
++    }
++}
++
++#[test]
++fn git_branch_alignment_uses_token_identity_and_handles_narrow_spaces() {
++    let configured: crate::config::SpacesSidebarConfig = toml::from_str(
++        r#"
++rows = [["$gitbranch", "$gitclean"]]
++"#,
++    )
++    .unwrap();
++    for branch in [Some("main"), None] {
++        let mut tokens = std::collections::HashMap::new();
++        if let Some(branch) = branch {
++            tokens.insert("gitbranch".into(), branch.into());
++        }
++        tokens.insert("gitclean".into(), "clean".into());
++        let rows = crate::ui::sidebar_space_rows(
++            &configured,
++            crate::ui::SpaceTokenContext {
++                workspace: "dots",
++                branch: None,
++                state_text: "idle",
++                ahead_behind: None,
++                tokens: &tokens,
++                suppress_git_details: false,
++            },
++        );
++        let config = ClientShellConfig::from_config(&Config::default());
++        for width in [1, 4, 8, 18, 36] {
++            let area = Rect::new(0, 0, width, 1);
++            let mut buffer = Buffer::empty(area);
++            super::super::sidebar::render_workspace_rows(
++                &mut buffer,
++                area,
++                AgentStatus::Idle,
++                Default::default(),
++                &WorkspaceEntry {
++                    index: 0,
++                    indented: false,
++                    last_child: false,
++                },
++                rows.clone(),
++                false,
++                false,
++                false,
++                false,
++                &config.palette,
++            );
++            let text = (0..width)
++                .map(|x| buffer[(x, 0)].symbol())
++                .collect::<String>();
++            if width >= 18 {
++                if branch.is_some() {
++                    assert!(text.starts_with(" main"), "{text}");
++                    assert!(text.ends_with("clean  "), "{text}");
++                } else {
++                    assert!(text.starts_with(" clean"), "{text}");
++                }
++            }
++        }
++    }
++}
+diff --git a/src/ui/sidebar/tokens.rs b/src/ui/sidebar/tokens.rs
+index c1e38aa..a7ff50c 100644
+--- a/src/ui/sidebar/tokens.rs
++++ b/src/ui/sidebar/tokens.rs
+@@ -159,11 +159,15 @@ pub(crate) fn space_rows(
+                             .filter(|(ahead, behind)| *ahead > 0 || *behind > 0)
+                             .map(|(ahead, behind)| ResolvedTokenKind::GitStatus { ahead, behind }),
+                         SpaceSidebarToken::GitStatus => None,
+-                        SpaceSidebarToken::Custom(name) => context
+-                            .tokens
+-                            .get(name)
+-                            .cloned()
+-                            .map(ResolvedTokenKind::Custom),
++                        SpaceSidebarToken::Custom(name) => {
++                            context.tokens.get(name).cloned().map(|value| {
++                                if name == "gitbranch" {
++                                    ResolvedTokenKind::Branch(value)
++                                } else {
++                                    ResolvedTokenKind::Custom(value)
++                                }
++                            })
++                        }
+                         SpaceSidebarToken::Styled { .. } => None,
+                     }?;
+                     let style = kind
