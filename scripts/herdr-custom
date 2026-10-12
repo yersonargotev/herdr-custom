@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+# Resolve symlinks so a link in ~/.local/bin still locates its release directory.
+entry=$0
+while [ -L "$entry" ]; do
+  parent=$(CDPATH= cd -- "$(dirname -- "$entry")" && pwd)
+  link=$(readlink "$entry")
+  case $link in /*) entry=$link ;; *) entry=$parent/$link ;; esac
+done
+root=$(CDPATH= cd -- "$(dirname -- "$entry")/.." && pwd)
+if [ "${1:-}" = --version ]; then
+  printf 'herdr-custom %s (upstream ' "$(cat "$root/VERSION")"
+  "$root/libexec/herdr" --version | tr -d '\n'
+  printf ')\n'
+  exit 0
+fi
+export HERDR_CONFIG_PATH="${HERDR_CONFIG_PATH:-$root/config/config.toml}"
+exec "$root/libexec/herdr" "$@"

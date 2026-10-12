@@ -1,0 +1,12 @@
+--- a/src/update.rs
++++ b/src/update.rs
+@@ -2107,6 +2107,9 @@
+ 
+ /// Manual self-update command (`herdr update`).
+ pub fn self_update(options: SelfUpdateOptions) -> Result<Version, String> {
++    if option_env!("HERDR_CUSTOM_BUILD").is_some() {
++        return Err("self-update is disabled for herdr-custom; install a verified herdr-custom release instead".into());
++    }
+     let channel = UpdateChannel::configured();
+ 
+     if is_homebrew_managed_install() {

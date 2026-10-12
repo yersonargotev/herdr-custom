@@ -1,0 +1,248 @@
+diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
+index e43ab8c..7cd4902 100644
+--- a/src/client/shell/agent_sidebar.rs
++++ b/src/client/shell/agent_sidebar.rs
+@@ -353,7 +353,53 @@ pub(super) fn render_agent_row(
+     } else {
+         row.rows.clone()
+     };
++    buffer.set_style(rect, row_style);
+     for (index, tokens) in rows.iter().take(rect.height as usize).enumerate() {
++        let y = rect.y + index as u16;
++        // Keep the agent identity on the left and its trailing state on the right.
++        if index == 0 {
++            if let Some((state, identity)) = tokens.split_last() {
++                if let crate::ui::ResolvedTokenKind::StateText(text) = &state.kind {
++                    let state_width = display_width(text).min(u16::MAX as usize) as u16;
++                    if identity
++                        .iter()
++                        .any(|token| matches!(token.kind, crate::ui::ResolvedTokenKind::Agent(_)))
++                        && rect.width >= state_width.saturating_add(6)
++                    {
++                        let left_width = rect.width - state_width - 3;
++                        let left = crate::ui::resolved_token_spans(
++                            identity,
++                            icon,
++                            status_style,
++                            name_style,
++                            secondary,
++                            secondary,
++                            palette,
++                            usize::from(left_width),
++                        );
++                        let right = crate::ui::resolved_token_spans(
++                            std::slice::from_ref(state),
++                            icon,
++                            status_style,
++                            name_style,
++                            secondary,
++                            secondary,
++                            palette,
++                            usize::from(state_width),
++                        );
++                        buffer.set_style(Rect::new(rect.x, y, rect.width, 1), row_style);
++                        Paragraph::new(Line::from(left))
++                            .style(row_style)
++                            .render(Rect::new(rect.x + 1, y, left_width, 1), buffer);
++                        Paragraph::new(Line::from(right)).style(row_style).render(
++                            Rect::new(rect.right() - state_width - 1, y, state_width, 1),
++                            buffer,
++                        );
++                        continue;
++                    }
++                }
++            }
++        }
+         let indent = if index == 0 { 1 } else { 3 };
+         let mut spans = vec![ratatui::text::Span::raw(" ".repeat(indent))];
+         spans.extend(crate::ui::resolved_token_spans(
+@@ -366,10 +412,14 @@ pub(super) fn render_agent_row(
+             palette,
+             rect.width.saturating_sub(indent as u16) as usize,
+         ));
+-        Paragraph::new(Line::from(spans)).style(row_style).render(
+-            Rect::new(rect.x, rect.y + index as u16, rect.width, 1),
+-            buffer,
+-        );
++        Paragraph::new(Line::from(spans))
++            .style(row_style)
++            .render(Rect::new(rect.x, y, rect.width, 1), buffer);
++    }
++    if row.focused && rect.width > 0 {
++        for y in rect.y..rect.bottom() {
++            buffer[(rect.x, y)].set_char('▎').set_fg(palette.accent);
++        }
+     }
+ }
+ 
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index f94f6bd..2e8eaaf 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -732,6 +732,12 @@ pub(in crate::client::shell) fn render_workspace_rows(
+         );
+     }
+ 
++    if (focused || selected) && area.width > 0 {
++        for y in area.y..area.bottom() {
++            buffer[(area.x, y)].set_char('▎').set_fg(palette.accent);
++        }
++    }
++
+     let background = if selected {
+         Some(workspace_selection_background(palette))
+     } else if dragged {
+diff --git a/src/client/shell/tabs.rs b/src/client/shell/tabs.rs
+index 3fdcf7d..b41aa4a 100644
+--- a/src/client/shell/tabs.rs
++++ b/src/client/shell/tabs.rs
+@@ -102,17 +102,17 @@ pub(crate) fn render_tab_bar(
+         let rect = Rect::new(x, area.y, width, 1);
+         let style = if tab.focused {
+             let base = Style::default()
+-                .fg(panel_contrast_fg(palette))
+-                .bg(palette.accent);
++                .fg(palette.accent)
++                .bg(palette.active_row_bg);
+             if tab.custom_label {
+                 base.add_modifier(Modifier::BOLD)
+             } else {
+                 base
+             }
+         } else if tab.custom_label {
+-            Style::default().fg(palette.overlay1).bg(palette.surface0)
++            Style::default().fg(palette.overlay1).bg(palette.panel_bg)
+         } else {
+-            Style::default().fg(palette.overlay0).bg(palette.surface0)
++            Style::default().fg(palette.overlay0).bg(palette.panel_bg)
+         };
+         let padding = width.saturating_sub(display_width(&name));
+         let left = padding / 2;
+@@ -123,6 +123,16 @@ pub(crate) fn render_tab_bar(
+             right_padding = padding.saturating_sub(left) as usize,
+         );
+         put_text(buffer, rect.x, rect.y, rect.width, &text, style);
++        if rect.right() < tab_right {
++            put_text(
++                buffer,
++                rect.right(),
++                rect.y,
++                1,
++                "│",
++                Style::default().fg(palette.surface1).bg(palette.panel_bg),
++            );
++        }
+         hits.tabs.push((rect, tab.tab_id.clone()));
+         first_visible.get_or_insert(index);
+         last_visible = Some(index);
+diff --git a/src/client/shell/tests/mod.rs b/src/client/shell/tests/mod.rs
+index 9d96014..669604d 100644
+--- a/src/client/shell/tests/mod.rs
++++ b/src/client/shell/tests/mod.rs
+@@ -260,3 +260,5 @@ mod mobile;
+ mod mouse_selection;
+ mod popup_focus_projection;
+ mod startup_overlays;
++
++mod visual_trial;
+diff --git a/src/client/shell/tests/visual_trial.rs b/src/client/shell/tests/visual_trial.rs
+new file mode 100644
+index 0000000..588dc64
+--- /dev/null
++++ b/src/client/shell/tests/visual_trial.rs
+@@ -0,0 +1,95 @@
++use super::*;
++
++#[test]
++fn visual_trial_selection_marks_and_tab_relationship_survive_composition() {
++    let mut projected = snapshot();
++    projected.tabs[0].label = "dots › codex".into();
++    projected.tabs[0].custom_label = true;
++    let mut other = projected.tabs[0].clone();
++    other.tab_id = "tab_2".into();
++    other.number = 2;
++    other.focused = false;
++    projected.tabs.push(other);
++    projected.agents.push(ClientShellAgent {
++        pane_id: "pane_1".into(),
++        workspace_id: "ws_1".into(),
++        tab_id: "tab_1".into(),
++        name: None,
++        display_agent: None,
++        agent: Some("codex".into()),
++        title: None,
++        terminal_title: None,
++        terminal_title_stripped: None,
++        agent_status: AgentStatus::Idle,
++        state_change_seq: 1,
++        state_labels: Vec::new(),
++        tokens: Vec::new(),
++        focused: true,
++    });
++    let config = ClientShellConfig::from_config(&Config::default());
++    let mut state = ClientShellState::new(config);
++    state.set_snapshot(Box::new(projected));
++    state.set_pane_surface(surface());
++    let frame = state.compose(140, 40).expect("desktop frame");
++    let text = frame
++        .cells
++        .iter()
++        .map(|cell| cell.symbol.as_str())
++        .collect::<String>();
++    assert!(text.contains("dots › codex"));
++    assert!(!text.contains("1 dots › codex"));
++    assert!(!text.contains("2 dots › codex"));
++    assert!(!text.contains("#1"));
++    assert!(frame.cells.iter().filter(|cell| cell.symbol == "▎").count() >= 2);
++    let first = state.hits.tabs[0].0;
++    let active = &frame.cells[usize::from(first.y * frame.width + first.x)];
++    assert_eq!(first.height, 1);
++    assert_eq!(active.modifier & Modifier::UNDERLINED.bits(), 0);
++    let separator = &frame.cells[usize::from(first.y * frame.width + first.right())];
++    assert_eq!(separator.symbol, "│");
++    let second = state.hits.tabs[1].0;
++    let inactive = &frame.cells[usize::from(second.y * frame.width + second.x)];
++    assert_eq!(inactive.modifier & Modifier::UNDERLINED.bits(), 0);
++    assert_eq!(state.hits.tabs[0].1, "tab_1");
++    assert_eq!(state.hits.tabs[1].1, "tab_2");
++}
++
++#[test]
++fn visual_trial_agent_state_stays_right_aligned() {
++    use crate::ui::{ResolvedToken, ResolvedTokenKind};
++    let config = ClientShellConfig::from_config(&Config::default());
++    for width in [18, 24, 36] {
++        for agent in ["codex", "claude", "pi"] {
++            for state in ["idle", "working", "blocked"] {
++                let rect = Rect::new(0, 0, width, 1);
++                let mut buffer = Buffer::empty(rect);
++                let row = super::super::agent_sidebar::AgentRow {
++                    pane_id: "pane_1".into(),
++                    status: AgentStatus::Idle,
++                    focused: true,
++                    rows: vec![vec![
++                        ResolvedToken {
++                            kind: ResolvedTokenKind::StateIcon,
++                            style: Default::default(),
++                        },
++                        ResolvedToken {
++                            kind: ResolvedTokenKind::Agent(agent.into()),
++                            style: Default::default(),
++                        },
++                        ResolvedToken {
++                            kind: ResolvedTokenKind::StateText(state.into()),
++                            style: Default::default(),
++                        },
++                    ]],
++                };
++                super::super::agent_sidebar::render_agent_row(&mut buffer, rect, &row, &config);
++                let text = (0..width)
++                    .map(|x| buffer[(x, 0)].symbol())
++                    .collect::<String>();
++                assert!(text.contains(agent), "{text}");
++                assert!(text.ends_with(&format!("{state} ")), "{text}");
++                assert!(!text.contains('·'), "{text}");
++            }
++        }
++    }
++}

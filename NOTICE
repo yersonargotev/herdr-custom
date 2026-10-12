@@ -1,0 +1,6 @@
+Herdr Custom is an independent modified distribution of Herdr.
+Upstream: https://github.com/herdrdev/herdr
+Herdr is licensed under Apache-2.0. Upstream copyright and license notices
+are retained in release source archives and binary distributions.
+Local modifications: compact client presentation and custom update guard.
+This project is not an official Herdr release.
