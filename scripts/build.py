@@ -68,12 +68,17 @@ def build(source, lock, test):
         raise ValueError('Zig version differs from the lock')
     env = dict(os.environ, HERDR_CUSTOM_BUILD=lock['distribution_version'])
     cargo = ['cargo', '+' + lock['rust']]
+    target_args = ['--target', 'x86_64-unknown-linux-musl'] if platform.system() == 'Linux' else []
     if test:
         run(*cargo, 'test', '--release', '--locked', '--bin', 'herdr',
-            'client::shell::', '--', '--test-threads=4', cwd=source, env=env)
-    run(*cargo, 'build', '--release', '--locked', cwd=source, env=env)
+            *target_args, 'client::shell::', '--', '--test-threads=4', cwd=source, env=env)
+    run(*cargo, 'build', '--release', '--locked', *target_args, cwd=source, env=env)
     target = Path(env.get('CARGO_TARGET_DIR', source / 'target')).resolve()
+    if target_args:
+        target = target / target_args[1]
     binary = target / 'release' / 'herdr'
+    if target_args and 'statically linked' not in run('file', str(binary), capture=True):
+        raise ValueError('Linux release must be statically linked')
     if run(str(binary), '--version', capture=True).strip() != 'herdr ' + lock['version']:
         raise ValueError('Built binary upstream version differs from the lock')
     with tempfile.TemporaryDirectory() as home:
@@ -86,10 +91,12 @@ def build(source, lock, test):
 
 
 def package(binary, source, lock):
-    arch = {'arm64': 'aarch64', 'x86_64': 'x86_64'}.get(platform.machine())
-    if platform.system() != 'Darwin' or arch is None:
-        raise ValueError('Release packaging currently supports macOS arm64/x86_64 only')
-    name = 'herdr-custom-' + lock['distribution_version'] + '-macos-' + arch
+    supported = {('Darwin', 'arm64'): 'macos-aarch64',
+                 ('Linux', 'x86_64'): 'linux-x86_64'}
+    platform_name = supported.get((platform.system(), platform.machine()))
+    if platform_name is None:
+        raise ValueError('Supported platforms: macOS Apple Silicon and Linux x86_64')
+    name = 'herdr-custom-' + lock['distribution_version'] + '-' + platform_name
     dist = ROOT / 'dist'
     dist.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
@@ -105,10 +112,17 @@ def package(binary, source, lock):
         if (source / 'NOTICE').exists():
             shutil.copy2(source / 'NOTICE', stage / 'UPSTREAM-NOTICE')
         shutil.copytree(ROOT / 'patches', stage / 'patches')
-        provenance = dict(lock, platform='macos-' + arch,
+        provenance = dict(lock, platform=platform_name,
                           recipe_commit=run('git', 'rev-parse', 'HEAD', capture=True).strip(),
                           binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest())
         (stage / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
+        with tempfile.TemporaryDirectory() as home:
+            isolated = dict(os.environ, HOME=home, XDG_CONFIG_HOME=home + '/config',
+                            XDG_STATE_HOME=home + '/state')
+            isolated.pop('HERDR_CONFIG_PATH', None)
+            launcher = str(stage / 'bin/herdr-custom')
+            run(launcher, '--version', env=isolated)
+            run(launcher, 'config', 'check', env=isolated)
         archive = dist / (name + '.tar.gz')
         with tarfile.open(archive, 'w:gz') as tar:
             tar.add(stage, arcname=name)

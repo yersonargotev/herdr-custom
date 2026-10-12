@@ -1,6 +1,6 @@
 # Herdr Custom
 
-An independent, compact UI distribution of Herdr for macOS. This repository
+An independent, compact UI distribution of Herdr for macOS Apple Silicon and Linux x86_64. This repository
 stores a small patch set and a pinned build recipe, not a long-lived copy of the
 upstream source. It is not an official Herdr release.
 
@@ -25,8 +25,9 @@ hashes, and distribution version. `VERSION` identifies our release independently
 from the upstream runtime version. Run `herdr-custom --version` to see both.
 
 The current base is Herdr 0.9.3, commit
-`7b116c05bfda646af39d2524c54e70c751f57ee8`. Both macOS Apple Silicon and Intel have
-native CI jobs. Linux and Windows packages are outside this initial scope.
+`7b116c05bfda646af39d2524c54e70c751f57ee8`. macOS Apple Silicon and Linux x86_64 have native CI jobs.
+Apple Intel, Linux ARM64, and Windows are not supported. Linux binaries use
+static musl linking.
 
 Every archive includes the lock, patches, license notices, and `provenance.json`
 with the recipe commit and executable SHA-256. Builds are source-pinned and
@@ -35,7 +36,8 @@ repeatable; byte-for-byte reproducibility has not been established.
 ## Build locally
 
 Install Python 3, Git, Rust 1.96.1 through rustup, Zig 0.16.0, CMake, Ninja, and
-Apple's command-line developer tools. Then:
+Apple's command-line developer tools on macOS. On Linux, install `musl-tools`
+and add the target with `rustup target add --toolchain 1.96.1 x86_64-unknown-linux-musl`. Then:
 
 ```sh
 python3 -m unittest discover -s tests -v
@@ -54,14 +56,14 @@ for an absolute build-cache directory.
 
 ## Install and try
 
-Download the archive and matching `.sha256` for your Mac from this repository's
-GitHub Releases. Apple Silicon uses `macos-aarch64`; Intel uses `macos-x86_64`.
+Download the archive and matching `.sha256` for your platform from this repository's
+GitHub Releases. Apple Silicon uses `macos-aarch64`; Linux x86_64 uses `linux-x86_64`.
 Verify the checksum before extraction:
 
 ```sh
-shasum -a 256 -c herdr-custom-0.9.3-custom.1-macos-aarch64.tar.gz.sha256
-tar -xzf herdr-custom-0.9.3-custom.1-macos-aarch64.tar.gz
-./herdr-custom-0.9.3-custom.1-macos-aarch64/bin/herdr-custom --version
+shasum -a 256 -c herdr-custom-0.9.3-custom.2-macos-aarch64.tar.gz.sha256
+tar -xzf herdr-custom-0.9.3-custom.2-macos-aarch64.tar.gz
+./herdr-custom-0.9.3-custom.2-macos-aarch64/bin/herdr-custom --version
 ```
 
 Keep the extracted directory together. You may move it under `~/.local/opt/`
@@ -106,9 +108,9 @@ dots is separate work tracked in https://github.com/yersonargotev/dots/issues/54
 
 1. Choose an official stable commit and review upstream changes and notices.
 2. Update the lock, adapt patches, recompute their SHA-256 values, and bump VERSION.
-3. Run the recipe, native macOS CI, and live mouse/theme/resize acceptance checks.
+3. Run the recipe, native macOS and Linux CI, and live mouse/theme/resize acceptance checks.
 4. Verify compatibility with the matching official server and rollback behavior.
-5. Tag `v` followed by VERSION. CI builds both architectures and creates a draft
+5. Tag `v` followed by VERSION. CI builds both supported platforms and creates a draft
    release only after both jobs pass. Review archives and provenance before
    publishing that draft.
 
