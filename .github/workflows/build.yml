@@ -32,6 +32,15 @@ jobs:
           fi
       - name: Install build dependencies
         run: HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake ninja
+      - name: Prepare pinned source
+        id: source
+        run: |
+          source_path=$(python3 scripts/build.py --prepare-only | tail -n 1)
+          printf 'path=%s\n' "$source_path" >> "$GITHUB_OUTPUT"
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
+        with:
+          workspaces: ${{ steps.source.outputs.path }} -> target
+          key: ${{ matrix.os }}-${{ hashFiles('upstream.lock.json') }}
       - name: Build, test, and package
         run: python3 scripts/build.py
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
