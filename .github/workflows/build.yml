@@ -55,8 +55,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd dist
-          sha256sum --check *.sha256
+          sha256sum --check ./*.sha256
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "Herdr Custom ${GITHUB_REF_NAME#v}" \
             --notes 'Independent compact UI distribution. See README for installation, upstream version, configuration, compatibility, and rollback.' \
-            --draft *.tar.gz *.sha256
+            --draft ./*.tar.gz ./*.sha256
