@@ -61,9 +61,9 @@ GitHub Releases. Apple Silicon uses `macos-aarch64`; Linux x86_64 uses `linux-x8
 Verify the checksum before extraction:
 
 ```sh
-shasum -a 256 -c herdr-custom-0.9.3-custom.2-macos-aarch64.tar.gz.sha256
-tar -xzf herdr-custom-0.9.3-custom.2-macos-aarch64.tar.gz
-./herdr-custom-0.9.3-custom.2-macos-aarch64/bin/herdr-custom --version
+shasum -a 256 -c herdr-custom-0.9.3-custom.3-macos-aarch64.tar.gz.sha256
+tar -xzf herdr-custom-0.9.3-custom.3-macos-aarch64.tar.gz
+./herdr-custom-0.9.3-custom.3-macos-aarch64/bin/herdr-custom --version
 ```
 
 Keep the extracted directory together. You may move it under `~/.local/opt/`

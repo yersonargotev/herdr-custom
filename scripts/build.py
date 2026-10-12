@@ -77,8 +77,10 @@ def build(source, lock, test):
     if target_args:
         target = target / target_args[1]
     binary = target / 'release' / 'herdr'
-    if target_args and 'statically linked' not in run('file', str(binary), capture=True):
-        raise ValueError('Linux release must be statically linked')
+    if target_args:
+        elf = run('readelf', '--program-headers', '--dynamic', str(binary), capture=True)
+        if 'INTERP' in elf or '(NEEDED)' in elf:
+            raise ValueError('Linux release must not require a loader or shared libraries')
     if run(str(binary), '--version', capture=True).strip() != 'herdr ' + lock['version']:
         raise ValueError('Built binary upstream version differs from the lock')
     with tempfile.TemporaryDirectory() as home:
