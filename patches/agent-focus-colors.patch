@@ -1,0 +1,136 @@
+diff --git a/src/client/shell/agent_sidebar.rs b/src/client/shell/agent_sidebar.rs
+index 7cd4902..1c32559 100644
+--- a/src/client/shell/agent_sidebar.rs
++++ b/src/client/shell/agent_sidebar.rs
+@@ -330,15 +330,13 @@ pub(super) fn render_agent_row(
+     } else {
+         Style::default()
+     };
+-    let name_style = if row.focused {
+-        Style::default()
+-            .fg(palette.text)
+-            .add_modifier(Modifier::BOLD)
+-    } else {
+-        Style::default()
+-            .fg(palette.subtext0)
+-            .add_modifier(Modifier::BOLD)
+-    };
++    let name_style = Style::default()
++        .fg(if row.focused {
++            palette.accent
++        } else {
++            palette.overlay1
++        })
++        .add_modifier(Modifier::BOLD);
+     let status_style = Style::default().fg(status_color(row.status, palette));
+     let secondary = Style::default().fg(palette.overlay0);
+     let icon = (
+diff --git a/src/client/shell/tests/visual_trial.rs b/src/client/shell/tests/visual_trial.rs
+index 5ecebec..d06ebbc 100644
+--- a/src/client/shell/tests/visual_trial.rs
++++ b/src/client/shell/tests/visual_trial.rs
+@@ -269,3 +269,79 @@ fn space_tab_name_color_follows_navigation_selection_and_focus() {
+         assert_eq!(buffer[(3, 1)].fg, Color::Rgb(203, 166, 247));
+     }
+ }
++
++#[test]
++fn agent_name_colors_follow_focus_and_preserve_status_and_overrides() {
++    use crate::ui::{ResolvedToken, ResolvedTokenKind};
++    use ratatui::style::Color;
++
++    let config = ClientShellConfig::from_config(&Config::default());
++    for override_fg in [false, true] {
++        let name_style = crate::config::SidebarTokenStyle {
++            fg: override_fg.then(|| serde_json::from_str(r##""#cba6f7""##).unwrap()),
++            bold: Some(true),
++            ..Default::default()
++        };
++        // Moving focus away and back must recolor both entries on each render.
++        for focused_index in [0, 1, 0] {
++            let mut buffer = Buffer::empty(Rect::new(0, 0, 30, 6));
++            for (index, (name, status, state_text)) in [
++                ("codex", AgentStatus::Idle, "idle"),
++                ("claude", AgentStatus::Working, "working"),
++            ]
++            .into_iter()
++            .enumerate()
++            {
++                let y = index as u16 * 3;
++                let row = super::super::agent_sidebar::AgentRow {
++                    pane_id: format!("pane_{index}"),
++                    status,
++                    focused: index == focused_index,
++                    rows: vec![
++                        vec![
++                            ResolvedToken {
++                                kind: ResolvedTokenKind::StateIcon,
++                                style: Default::default(),
++                            },
++                            ResolvedToken {
++                                kind: ResolvedTokenKind::Agent(name.into()),
++                                style: name_style,
++                            },
++                            ResolvedToken {
++                                kind: ResolvedTokenKind::StateText(state_text.into()),
++                                style: Default::default(),
++                            },
++                        ],
++                        vec![ResolvedToken {
++                            kind: ResolvedTokenKind::Tab("context".into()),
++                            style: Default::default(),
++                        }],
++                    ],
++                };
++                super::super::agent_sidebar::render_agent_row(
++                    &mut buffer,
++                    Rect::new(0, y, 30, 2),
++                    &row,
++                    &config,
++                );
++                assert_eq!(buffer[(3, y)].symbol(), "c");
++                let expected = if override_fg {
++                    Color::Rgb(203, 166, 247)
++                } else if row.focused {
++                    config.palette.accent
++                } else {
++                    config.palette.overlay1
++                };
++                assert_eq!(buffer[(3, y)].fg, expected);
++                assert!(buffer[(3, y)].modifier.contains(Modifier::BOLD));
++                let status_fg = status_color(status, &config.palette);
++                assert_eq!(buffer[(1, y)].fg, status_fg);
++                let state_x = 29 - state_text.len() as u16;
++                assert_eq!(buffer[(state_x, y)].symbol(), &state_text[..1]);
++                assert_eq!(buffer[(state_x, y)].fg, status_fg);
++                assert_eq!(buffer[(3, y + 1)].symbol(), "c");
++                assert_eq!(buffer[(3, y + 1)].fg, config.palette.overlay0);
++            }
++        }
++    }
++}
+diff --git a/src/ui/sidebar.rs b/src/ui/sidebar.rs
+index cbf6f1a..48081f5 100644
+--- a/src/ui/sidebar.rs
++++ b/src/ui/sidebar.rs
+@@ -231,14 +231,15 @@ pub(crate) fn resolved_token_spans(
+                 truncate_end(text, budgets[index]),
+                 apply_token_style(state_text_style, token.style),
+             )),
+-            ResolvedTokenKind::Workspace(text) => spans.push(Span::styled(
+-                truncate_end(text, budgets[index]),
+-                apply_token_style(workspace_style, token.style),
+-            )),
++            ResolvedTokenKind::Workspace(text) | ResolvedTokenKind::Agent(text) => {
++                spans.push(Span::styled(
++                    truncate_end(text, budgets[index]),
++                    apply_token_style(workspace_style, token.style),
++                ));
++            }
+             ResolvedTokenKind::Machine(text)
+             | ResolvedTokenKind::Tab(text)
+             | ResolvedTokenKind::Pane(text)
+-            | ResolvedTokenKind::Agent(text)
+             | ResolvedTokenKind::Branch(text) => spans.push(Span::styled(
+                 truncate_end(text, budgets[index]),
+                 apply_token_style(secondary_style, token.style),

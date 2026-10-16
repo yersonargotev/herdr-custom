@@ -2,7 +2,7 @@
   "repository": "https://github.com/herdrdev/herdr.git",
   "commit": "7b116c05bfda646af39d2524c54e70c751f57ee8",
   "version": "0.9.3",
-  "distribution_version": "0.9.3-custom.5",
+  "distribution_version": "0.9.3-custom.6",
   "rust": "1.96.1",
   "zig": "0.16.0",
   "patches": [
@@ -21,6 +21,10 @@
     {
       "path": "patches/space-selection-colors.patch",
       "sha256": "24817488820e3c751c8264ffc35c170b43261867bf456ebf508fde1351fb46e6"
+    },
+    {
+      "path": "patches/agent-focus-colors.patch",
+      "sha256": "0335172c64b27fdafbe00d0b20bbe02a9992913b9684323a18a5a1f26ae18392"
     }
   ]
 }
