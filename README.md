@@ -9,11 +9,15 @@ upstream source. It is not an official Herdr release.
 - One-row tabs, without added numbering, underline, or vertical padding.
 - Highlighted active tab; inactive tabs share the bar background; vertical separators.
 - Blue selection marks for Spaces and Agents.
+- Space tab names follow the navigation selection in the theme accent; inactive
+  names retain the original theme gray. Leaving navigation restores active-Space
+  highlighting. Explicit token foregrounds still override the contextual color.
 - Agent name and state dot on the left, state text aligned to the right.
 - Space branch on the left, Git status and change counts on the right; narrow
   sidebars keep the compact inline layout.
-- The bundled adaptive configuration uses stable workspace names, task and tab
-  context, dots for status indicators, and no sidebar row gaps.
+- The bundled adaptive configuration uses active tab names, native Agent tab
+  context, dots for status indicators, and one blank row between independent
+  Space entries and between Agent entries.
 
 The native patches change client presentation and disable official self-update.
 The executable still contains upstream server functionality. No server protocol
@@ -63,9 +67,9 @@ GitHub Releases. Apple Silicon uses `macos-aarch64`; Linux x86_64 uses `linux-x8
 Verify the checksum before extraction:
 
 ```sh
-shasum -a 256 -c herdr-custom-0.9.3-custom.4-macos-aarch64.tar.gz.sha256
-tar -xzf herdr-custom-0.9.3-custom.4-macos-aarch64.tar.gz
-./herdr-custom-0.9.3-custom.4-macos-aarch64/bin/herdr-custom --version
+shasum -a 256 -c herdr-custom-0.9.3-custom.5-macos-aarch64.tar.gz.sha256
+tar -xzf herdr-custom-0.9.3-custom.5-macos-aarch64.tar.gz
+./herdr-custom-0.9.3-custom.5-macos-aarch64/bin/herdr-custom --version
 ```
 
 Keep the extracted directory together. You may move it under `~/.local/opt/`
@@ -85,7 +89,7 @@ Do not run simultaneous clients with different layouts as a visual acceptance te
 The launcher defaults to the bundled config, and honors an explicit
 `HERDR_CONFIG_PATH`. It does not copy anything into `~/.config/herdr`.
 The bundled configuration is the approved dots adaptive configuration: its
-Tabby, Git metadata, and Herdr Tasks fields require those existing plugins.
+Tabby and Git metadata fields require those existing plugins.
 This project does not install plugins. Without them, their metadata fields may
 be empty; an optional metrics command also requires the dots metrics setup.
 No extra vertical padding is supported.
