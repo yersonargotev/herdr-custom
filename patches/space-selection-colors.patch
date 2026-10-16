@@ -1,0 +1,108 @@
+diff --git a/src/client/shell/sidebar.rs b/src/client/shell/sidebar.rs
+index 103f1ec..64b403d 100644
+--- a/src/client/shell/sidebar.rs
++++ b/src/client/shell/sidebar.rs
+@@ -696,12 +696,12 @@ pub(in crate::client::shell) fn render_workspace_rows(
+         } else {
+             x = x.saturating_add(3);
+         }
+-        let highlighted = focused || dragged;
++        let highlighted = if navigating { selected } else { focused };
+         let workspace_style = Style::default()
+             .fg(if highlighted {
+-                palette.text
++                palette.accent
+             } else {
+-                palette.subtext0
++                palette.overlay1
+             })
+             .add_modifier(if highlighted {
+                 Modifier::BOLD
+diff --git a/src/client/shell/tests/visual_trial.rs b/src/client/shell/tests/visual_trial.rs
+index ed55014..5ecebec 100644
+--- a/src/client/shell/tests/visual_trial.rs
++++ b/src/client/shell/tests/visual_trial.rs
+@@ -202,3 +202,70 @@ rows = [["$gitbranch", "$gitclean"]]
+         }
+     }
+ }
++
++#[test]
++fn space_tab_name_color_follows_navigation_selection_and_focus() {
++    use ratatui::style::Color;
++    let configured: crate::config::SpacesSidebarConfig = toml::from_str(
++        r##"rows = [[{ token = "$tab_name", bold = true, dim = false }],
++                    [{ token = "$gitbranch", fg = "#cba6f7" }]]"##,
++    )
++    .unwrap();
++    let config = ClientShellConfig::from_config(&Config::default());
++    let tokens = HashMap::from([
++        ("tab_name".into(), "dots > codex".into()),
++        ("gitbranch".into(), "main".into()),
++    ]);
++    let rows = crate::ui::sidebar_space_rows(
++        &configured,
++        crate::ui::SpaceTokenContext {
++            workspace: "stable-name",
++            branch: None,
++            state_text: "idle",
++            ahead_behind: None,
++            tokens: &tokens,
++            suppress_git_details: false,
++        },
++    );
++    // A navigation cursor wins over the still-focused workspace. Leaving
++    // navigation restores focus styling, including after a cancelled move.
++    for (focused, selected, navigating, blue) in [
++        (true, false, false, true),
++        (false, false, false, false),
++        (true, false, true, false),
++        (false, true, true, true),
++        (true, true, true, true),
++        (true, false, false, true),
++    ] {
++        let area = Rect::new(0, 0, 30, 2);
++        let mut buffer = Buffer::empty(area);
++        super::super::sidebar::render_workspace_rows(
++            &mut buffer,
++            area,
++            AgentStatus::Idle,
++            Default::default(),
++            &WorkspaceEntry {
++                index: 0,
++                indented: false,
++                last_child: false,
++            },
++            rows.clone(),
++            focused,
++            selected,
++            navigating,
++            false,
++            &config.palette,
++        );
++        assert_eq!(buffer[(1, 0)].symbol(), "d");
++        assert_eq!(
++            buffer[(1, 0)].fg,
++            if blue {
++                config.palette.accent
++            } else {
++                config.palette.overlay1
++            }
++        );
++        assert_eq!(buffer[(3, 1)].symbol(), "m");
++        assert_eq!(buffer[(3, 1)].fg, Color::Rgb(203, 166, 247));
++    }
++}
+diff --git a/src/ui/sidebar/tokens.rs b/src/ui/sidebar/tokens.rs
+index a7ff50c..0322eee 100644
+--- a/src/ui/sidebar/tokens.rs
++++ b/src/ui/sidebar/tokens.rs
+@@ -163,6 +163,8 @@ pub(crate) fn space_rows(
+                             context.tokens.get(name).cloned().map(|value| {
+                                 if name == "gitbranch" {
+                                     ResolvedTokenKind::Branch(value)
++                                } else if name == "tab_name" {
++                                    ResolvedTokenKind::Workspace(value)
+                                 } else {
+                                     ResolvedTokenKind::Custom(value)
+                                 }
