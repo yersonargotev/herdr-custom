@@ -1,0 +1,23 @@
+{
+  "startup": {
+    "row": 20,
+    "column": 3,
+    "text": "packy-catalog \u203a codex",
+    "foreground": "6c7086",
+    "background": "313244"
+  },
+  "refresh": {
+    "row": 20,
+    "column": 3,
+    "text": "packy-catalog \u203a codex",
+    "foreground": "6c7086",
+    "background": "313244"
+  },
+  "polling": {
+    "row": 20,
+    "column": 3,
+    "text": "packy-catalog \u203a codex",
+    "foreground": "6c7086",
+    "background": "313244"
+  }
+}

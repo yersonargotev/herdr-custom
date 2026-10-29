@@ -1,0 +1,119 @@
+[
+  {
+    "check": "space focused blue",
+    "case": "custom-server",
+    "capture": "dark-focused",
+    "column": 3,
+    "row": 2,
+    "expected": "89b4fa",
+    "actual": "89b4fa"
+  },
+  {
+    "check": "space inactive gray",
+    "case": "custom-server",
+    "capture": "dark-focused",
+    "column": 3,
+    "row": 5,
+    "expected": "7f849c",
+    "actual": "7f849c"
+  },
+  {
+    "check": "Agent focused blue",
+    "case": "custom-server",
+    "capture": "dark-focused",
+    "column": 3,
+    "row": 19,
+    "expected": "89b4fa",
+    "actual": "89b4fa"
+  },
+  {
+    "check": "Agent inactive gray",
+    "case": "custom-server",
+    "capture": "dark-focused",
+    "column": 3,
+    "row": 22,
+    "expected": "7f849c",
+    "actual": "7f849c"
+  },
+  {
+    "check": "native tab muted",
+    "case": "custom-server",
+    "capture": "dark-focused",
+    "column": 3,
+    "row": 20,
+    "expected": "6c7086",
+    "actual": "6c7086"
+  },
+  {
+    "check": "navigation selected blue",
+    "case": "custom-server",
+    "capture": "navigation-second",
+    "column": 3,
+    "row": 5,
+    "expected": "89b4fa",
+    "actual": "89b4fa"
+  },
+  {
+    "check": "navigation former focus gray",
+    "case": "custom-server",
+    "capture": "navigation-second",
+    "column": 3,
+    "row": 2,
+    "expected": "7f849c",
+    "actual": "7f849c"
+  },
+  {
+    "check": "navigation exit restores blue",
+    "case": "custom-server",
+    "capture": "navigation-exit",
+    "column": 3,
+    "row": 2,
+    "expected": "89b4fa",
+    "actual": "89b4fa"
+  },
+  {
+    "check": "mouse focus follows Agent",
+    "case": "custom-server",
+    "capture": "mouse-second-space",
+    "column": 3,
+    "row": 22,
+    "expected": "89b4fa",
+    "actual": "89b4fa"
+  },
+  {
+    "check": "light inactive gray",
+    "case": "light-theme",
+    "capture": "focused",
+    "column": 3,
+    "row": 5,
+    "expected": "8c8fa1",
+    "actual": "8c8fa1"
+  },
+  {
+    "check": "light native context muted",
+    "case": "light-theme",
+    "capture": "focused",
+    "column": 3,
+    "row": 20,
+    "expected": "9ca0b0",
+    "actual": "9ca0b0"
+  },
+  {
+    "check": "Space explicit foreground",
+    "case": "explicit-foreground",
+    "capture": "navigation-second",
+    "column": 3,
+    "row": 5,
+    "expected": "ff00ff",
+    "actual": "ff00ff"
+  },
+  {
+    "check": "Agent explicit foreground",
+    "case": "explicit-foreground",
+    "capture": "navigation-second",
+    "column": 3,
+    "row": 19,
+    "expected": "00ff00",
+    "actual": "00ff00"
+  }
+]

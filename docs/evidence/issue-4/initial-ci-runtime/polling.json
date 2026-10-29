@@ -1,0 +1,154 @@
+{
+  "agents": [],
+  "focused_pane_id": "w1:p1",
+  "focused_tab_id": "w1:t1",
+  "focused_workspace_id": "w1",
+  "layouts": [
+    {
+      "area": {
+        "height": 40,
+        "width": 120,
+        "x": 0,
+        "y": 0
+      },
+      "focused_pane_id": "w1:p1",
+      "panes": [
+        {
+          "focused": true,
+          "pane_id": "w1:p1",
+          "rect": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "splits": [],
+      "tab_id": "w1:t1",
+      "workspace_id": "w1",
+      "zoomed": false
+    },
+    {
+      "area": {
+        "height": 40,
+        "width": 120,
+        "x": 0,
+        "y": 0
+      },
+      "focused_pane_id": "w2:p1",
+      "panes": [
+        {
+          "focused": true,
+          "pane_id": "w2:p1",
+          "rect": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          }
+        }
+      ],
+      "splits": [],
+      "tab_id": "w2:t1",
+      "workspace_id": "w2",
+      "zoomed": false
+    }
+  ],
+  "panes": [
+    {
+      "agent_status": "unknown",
+      "cwd": "/private/tmp/hc4-dpvyrnm3/packy-catalog",
+      "focused": true,
+      "foreground_cwd": "/private/tmp/hc4-dpvyrnm3/packy-catalog",
+      "pane_id": "w1:p1",
+      "revision": 4,
+      "scroll": {
+        "max_offset_from_bottom": 0,
+        "offset_from_bottom": 0,
+        "viewport_rows": 40
+      },
+      "tab_id": "w1:t1",
+      "terminal_id": "term_65ef4152220f91",
+      "tokens": {
+        "project": "packy-catalog"
+      },
+      "workspace_id": "w1"
+    },
+    {
+      "agent_status": "unknown",
+      "cwd": "/private/tmp/hc4-dpvyrnm3/second-project",
+      "focused": false,
+      "foreground_cwd": "/private/tmp/hc4-dpvyrnm3/second-project",
+      "pane_id": "w2:p1",
+      "revision": 3,
+      "scroll": {
+        "max_offset_from_bottom": 0,
+        "offset_from_bottom": 0,
+        "viewport_rows": 40
+      },
+      "tab_id": "w2:t1",
+      "terminal_id": "term_65ef4152228cb2",
+      "tokens": {
+        "project": "second-project"
+      },
+      "workspace_id": "w2"
+    }
+  ],
+  "protocol": 22,
+  "tabs": [
+    {
+      "agent_status": "unknown",
+      "focused": true,
+      "label": "codex",
+      "number": 1,
+      "pane_count": 1,
+      "tab_id": "w1:t1",
+      "workspace_id": "w1"
+    },
+    {
+      "agent_status": "unknown",
+      "focused": false,
+      "label": "review",
+      "number": 1,
+      "pane_count": 1,
+      "tab_id": "w2:t1",
+      "workspace_id": "w2"
+    }
+  ],
+  "version": "0.9.5",
+  "workspaces": [
+    {
+      "active_tab_id": "w1:t1",
+      "agent_status": "unknown",
+      "focused": true,
+      "label": "packy-catalog",
+      "number": 1,
+      "pane_count": 1,
+      "tab_count": 1,
+      "tokens": {
+        "gitbranch": "smoke-base",
+        "gitmodified": "~1",
+        "gituntracked": "?1",
+        "gitworkmodified": "!1",
+        "tab_name": "codex"
+      },
+      "workspace_id": "w1"
+    },
+    {
+      "active_tab_id": "w2:t1",
+      "agent_status": "unknown",
+      "focused": false,
+      "label": "second-project",
+      "number": 2,
+      "pane_count": 1,
+      "tab_count": 1,
+      "tokens": {
+        "gitbranch": "smoke-base",
+        "gitclean": "clean",
+        "tab_name": "review"
+      },
+      "workspace_id": "w2"
+    }
+  ]
+}

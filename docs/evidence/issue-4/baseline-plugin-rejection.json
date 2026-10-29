@@ -1,0 +1,23 @@
+[
+  {
+    "args": [
+      "--version"
+    ],
+    "code": 0,
+    "stdout": "herdr-custom 0.9.3-custom.6 (upstream herdr 0.9.3)\n",
+    "stderr": ""
+  },
+  {
+    "args": [
+      "plugin",
+      "install",
+      "yersonargotev/herdr-tab-git",
+      "--ref",
+      "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df",
+      "--yes"
+    ],
+    "code": 1,
+    "stdout": "",
+    "stderr": "Error: Custom { kind: Other, error: \"plugin requires Herdr 0.9.5 or newer; current Herdr is 0.9.3\" }\n"
+  }
+]

@@ -1,0 +1,149 @@
+{
+  "actions": [
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--clear"
+      ],
+      "contexts": [
+        "workspace"
+      ],
+      "id": "clear",
+      "title": "Clear tab git tokens"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all",
+        "--resume"
+      ],
+      "contexts": [
+        "workspace"
+      ],
+      "id": "refresh",
+      "title": "Refresh tab git status"
+    }
+  ],
+  "description": "Space Git tokens and per-pane project labels for Agents",
+  "enabled": true,
+  "events": [
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.agent_detected"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.closed"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.created"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.exited"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.focused"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "pane.moved"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all"
+      ],
+      "on": "tab.closed"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all"
+      ],
+      "on": "tab.created"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "tab.focused"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all"
+      ],
+      "on": "tab.moved"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all"
+      ],
+      "on": "tab.renamed"
+    },
+    {
+      "command": [
+        "sh",
+        "run.sh"
+      ],
+      "on": "workspace.focused"
+    }
+  ],
+  "manifest_path": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout/herdr-plugin.toml",
+  "min_herdr_version": "0.9.5",
+  "name": "Tab Git Tokens",
+  "platforms": [
+    "linux",
+    "macos"
+  ],
+  "plugin_id": "yersonargotev.tab-git",
+  "plugin_root": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout",
+  "source": {
+    "installed_unix_ms": 1793252279795,
+    "kind": "github",
+    "managed_path": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout",
+    "owner": "yersonargotev",
+    "repo": "herdr-tab-git",
+    "requested_ref": "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df",
+    "resolved_commit": "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df"
+  },
+  "startup": [
+    {
+      "command": [
+        "sh",
+        "run.sh",
+        "--all"
+      ]
+    }
+  ],
+  "version": "1.4.0"
+}

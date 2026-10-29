@@ -1,0 +1,16 @@
+[
+  {
+    "archive": "/tmp/herdr-custom-issue-4/ci-pin-dist/herdr-custom-0.9.5-custom.1-macos-aarch64.tar.gz",
+    "platform": "macos-aarch64",
+    "recipe_commit": "7cb24d879099b0947024b1a4522d0612306025a1",
+    "archive_sha256": "6a446b127859f0ffdce2fa7a387d6294a213c9e48e203b820b53826fe4e22e9e",
+    "binary_sha256": "4eb92b891ea2912f0f5f80b1f0c996b404e41f5e75d935f4a79477890a5a5b41"
+  },
+  {
+    "archive": "/tmp/herdr-custom-issue-4/ci-pin-dist/herdr-custom-0.9.5-custom.1-linux-x86_64.tar.gz",
+    "platform": "linux-x86_64",
+    "recipe_commit": "7cb24d879099b0947024b1a4522d0612306025a1",
+    "archive_sha256": "cc7c540401bbdb19d58367c21c3fc69802eacb97d8e54ac14c0831a51bbbf8e2",
+    "binary_sha256": "8be67608d6942ffbe916a57d02d608af89b115ac80074fc8f884cddd12ce5d15"
+  }
+]

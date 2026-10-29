@@ -1,0 +1,19 @@
+{
+  "PATH": "/usr/bin:/bin",
+  "LANG": "C.UTF-8",
+  "LC_ALL": "C.UTF-8",
+  "LC_CTYPE": "C.UTF-8",
+  "TERM": "xterm-256color",
+  "HOME": "/private/tmp/hc4-dpvyrnm3/home",
+  "XDG_CONFIG_HOME": "/private/tmp/hc4-dpvyrnm3/config",
+  "XDG_CACHE_HOME": "/private/tmp/hc4-dpvyrnm3/cache",
+  "XDG_DATA_HOME": "/private/tmp/hc4-dpvyrnm3/data",
+  "XDG_STATE_HOME": "/private/tmp/hc4-dpvyrnm3/state",
+  "XDG_RUNTIME_DIR": "/private/tmp/hc4-dpvyrnm3/runtime",
+  "TMPDIR": "/private/tmp/hc4-dpvyrnm3/tmp",
+  "SHELL": "/bin/sh",
+  "HERDR_SOCKET_PATH": "/private/tmp/hc4-dpvyrnm3/runtime/api.sock",
+  "GIT_CONFIG_NOSYSTEM": "1",
+  "GIT_CONFIG_GLOBAL": "/dev/null",
+  "HERDR_TAB_GIT_NODE": "/private/tmp/hc4-dpvyrnm3/node-observer"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "cli:plugin",
+  "result": {
+    "logs": [
+      {
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ],
+        "event": "startup",
+        "exit_code": 0,
+        "finished_unix_ms": 1793252280466,
+        "log_id": "plugin-log-1",
+        "plugin_id": "yersonargotev.tab-git",
+        "started_unix_ms": 1793252279877,
+        "status": "succeeded",
+        "stderr": "",
+        "stdout": ""
+      }
+    ],
+    "type": "plugin_log_list"
+  }
+}

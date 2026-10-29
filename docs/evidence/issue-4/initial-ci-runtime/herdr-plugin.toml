@@ -1,0 +1,69 @@
+id = "yersonargotev.tab-git"
+name = "Tab Git Tokens"
+version = "1.4.0"
+min_herdr_version = "0.9.5"
+description = "Space Git tokens and per-pane project labels for Agents"
+platforms = ["linux", "macos"]
+
+[[startup]]
+command = ["sh", "run.sh", "--all"]
+
+[[events]]
+on = "pane.focused"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "workspace.focused"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "pane.created"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "pane.moved"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "pane.closed"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "pane.exited"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "tab.focused"
+command = ["sh", "run.sh"]
+
+[[events]]
+on = "tab.created"
+command = ["sh", "run.sh", "--all"]
+
+[[events]]
+on = "tab.renamed"
+command = ["sh", "run.sh", "--all"]
+
+[[events]]
+on = "tab.closed"
+command = ["sh", "run.sh", "--all"]
+
+[[events]]
+on = "tab.moved"
+command = ["sh", "run.sh", "--all"]
+
+[[actions]]
+id = "refresh"
+title = "Refresh tab git status"
+contexts = ["workspace"]
+command = ["sh", "run.sh", "--all", "--resume"]
+
+[[actions]]
+id = "clear"
+title = "Clear tab git tokens"
+contexts = ["workspace"]
+command = ["sh", "run.sh", "--clear"]

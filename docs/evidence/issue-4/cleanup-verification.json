@@ -1,0 +1,118 @@
+[
+  {
+    "case": "custom-server",
+    "checks": [
+      {
+        "pid": 65486,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 65573,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 66306,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 66489,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  },
+  {
+    "case": "plugin-native-context",
+    "checks": [
+      {
+        "pid": 68403,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 68467,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 68452,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  },
+  {
+    "case": "light-theme",
+    "checks": [
+      {
+        "pid": 66755,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 66856,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  },
+  {
+    "case": "native-full-context",
+    "checks": [
+      {
+        "pid": 67704,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 67784,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  },
+  {
+    "case": "explicit-foreground",
+    "checks": [
+      {
+        "pid": 67257,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 67340,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  },
+  {
+    "case": "official-server",
+    "checks": [
+      {
+        "pid": 64919,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 64967,
+        "not_running": true,
+        "observed": ""
+      },
+      {
+        "pid": 65151,
+        "not_running": true,
+        "observed": ""
+      }
+    ],
+    "server_returncode": 0
+  }
+]
