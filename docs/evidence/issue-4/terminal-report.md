@@ -55,7 +55,7 @@ At every capture, the native Agent context was still the full label at row 20, c
 | Official Herdr 0.9.5, PID 64919 | Custom 0.9.5 client, detach, official 0.9.5 client, detach | Pane `w1:p1`, shell PID 64944 before and after both clients | PASS |
 | Custom Herdr 0.9.5, PID 65486 | Custom 0.9.5 client, detach, official 0.9.5 client, detach | Pane `w1:p1`, shell PID 65516 before and after both clients | PASS |
 
-Exact process information is in `cli-rerun/official-server/process-identities.json` and `cli-rerun/custom-server/process-identities.json`. API snapshots before and after each client are retained. Every detach returned zero. The server remained alive between clients. Clients were sequential, never simultaneous.
+Exact process information is in `cli-rerun/official-server/process-identities.json` and `cli-rerun/custom-server/process-identities.json`. Official-server API snapshots before and after each client are retained. The custom-server case retains its pre-visual snapshot and the complete before/after process information. Every detach returned zero. The server remained alive between clients. Clients were sequential, never simultaneous.
 
 This verifies matching-version client replacement. It does not verify 0.9.3 clients or servers, downgrade of state saved by 0.9.5, or recovery of terminated coding-agent processes. The safe rollback boundary remains the complete pre-upgrade config/state/plugin backup described by the parent source audit.
 
