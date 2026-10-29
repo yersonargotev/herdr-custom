@@ -1,0 +1,63 @@
+{
+  "before": {
+    "process_info": {
+      "foreground_process_group_id": 65516,
+      "foreground_processes": [
+        {
+          "argv": [
+            "-sh"
+          ],
+          "argv0": "sh",
+          "cmdline": "-sh",
+          "cwd": "/private/tmp/h4v-9tg7flpt/packy-catalog",
+          "name": "bash",
+          "pid": 65516
+        }
+      ],
+      "pane_id": "w1:p1",
+      "shell_pid": 65516
+    },
+    "type": "pane_process_info"
+  },
+  "after_custom": {
+    "process_info": {
+      "foreground_process_group_id": 65516,
+      "foreground_processes": [
+        {
+          "argv": [
+            "-sh"
+          ],
+          "argv0": "sh",
+          "cmdline": "-sh",
+          "cwd": "/private/tmp/h4v-9tg7flpt/packy-catalog",
+          "name": "bash",
+          "pid": 65516
+        }
+      ],
+      "pane_id": "w1:p1",
+      "shell_pid": 65516
+    },
+    "type": "pane_process_info"
+  },
+  "after_official": {
+    "process_info": {
+      "foreground_process_group_id": 65516,
+      "foreground_processes": [
+        {
+          "argv": [
+            "-sh"
+          ],
+          "argv0": "sh",
+          "cmdline": "-sh",
+          "cwd": "/private/tmp/h4v-9tg7flpt/packy-catalog",
+          "name": "bash",
+          "pid": 65516
+        }
+      ],
+      "pane_id": "w1:p1",
+      "shell_pid": 65516
+    },
+    "type": "pane_process_info"
+  },
+  "server_pid": 65486
+}

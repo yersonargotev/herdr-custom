@@ -30,17 +30,54 @@ def load_lock():
     return lock
 
 
+def clean_recipe(expected=None):
+    commit = run('git', 'rev-parse', 'HEAD', cwd=ROOT, capture=True).strip()
+    if expected is not None and commit != expected:
+        raise ValueError('Recipe commit changed during the build')
+    if run('git', 'status', '--porcelain', '--untracked-files=normal', cwd=ROOT, capture=True):
+        raise ValueError('Recipe must be clean before building or packaging')
+    return commit
+
+
+def isolated_env(root):
+    root = Path(root).resolve()
+    env = {key: os.environ[key] for key in ['PATH', 'LANG', 'LC_ALL', 'LC_CTYPE', 'TERM', 'TZ']
+           if key in os.environ}
+    for key, directory in [('HOME', 'home'), ('XDG_CONFIG_HOME', 'config'),
+                           ('XDG_CACHE_HOME', 'cache'), ('XDG_DATA_HOME', 'data'),
+                           ('XDG_STATE_HOME', 'state'), ('XDG_RUNTIME_DIR', 'runtime'),
+                           ('TMPDIR', 'tmp')]:
+        path = root / directory
+        path.mkdir(parents=True, exist_ok=True, mode=0o700)
+        env[key] = str(path)
+    env.update(SHELL='/bin/sh', HERDR_CONFIG_PATH=str(root / 'config.toml'),
+               HERDR_SOCKET_PATH=str(root / 'runtime/api.sock'))
+    return env
+
+
+def verify_prepared(source, lock):
+    if run('git', 'rev-parse', 'HEAD', cwd=source, capture=True).strip() != lock['commit']:
+        raise ValueError('Upstream commit mismatch')
+    if run('git', 'diff', '--name-only', cwd=source, capture=True):
+        raise ValueError('Prepared source has unstaged changes')
+    if run('git', 'ls-files', '--others', '--exclude-standard', cwd=source, capture=True):
+        raise ValueError('Prepared source has untracked inputs')
+    with tempfile.TemporaryDirectory(prefix='hc-index-') as tmp:
+        env = dict(os.environ, GIT_INDEX_FILE=str(Path(tmp) / 'index'))
+        run('git', 'read-tree', lock['commit'], cwd=source, env=env)
+        for patch in lock['patches']:
+            run('git', 'apply', '--cached', str(ROOT / patch['path']), cwd=source, env=env)
+        expected = run('git', 'write-tree', cwd=source, capture=True, env=env).strip()
+    actual = run('git', 'write-tree', cwd=source, capture=True).strip()
+    if actual != expected:
+        raise ValueError('Prepared source differs from the locked patches')
+
+
 def prepare(lock, cache=None):
     digest = hashlib.sha256((ROOT / 'upstream.lock.json').read_bytes()).hexdigest()[:16]
     source = ROOT / '.build' / digest
-    stamp = source / '.git' / 'custom-patch-digest'
     if source.exists():
-        if not stamp.exists():
-            raise ValueError(f'Incomplete build directory; inspect and remove {source}')
-        run('git', 'diff', '--exit-code', cwd=source)
-        staged = run('git', 'diff', '--cached', '--binary', cwd=source, capture=True)
-        if hashlib.sha256(staged.encode()).hexdigest() != stamp.read_text().strip():
-            raise ValueError('Prepared source was modified; refusing to build')
+        verify_prepared(source, lock)
         return source
     source.parent.mkdir(parents=True, exist_ok=True)
     if cache:
@@ -57,9 +94,18 @@ def prepare(lock, cache=None):
     for patch in lock['patches']:
         run('git', 'apply', '--check', str(ROOT / patch['path']), cwd=source)
         run('git', 'apply', '--index', str(ROOT / patch['path']), cwd=source)
-    staged = run('git', 'diff', '--cached', '--binary', cwd=source, capture=True)
-    stamp.write_text(hashlib.sha256(staged.encode()).hexdigest() + '\n')
+    verify_prepared(source, lock)
     return source
+
+
+def verify_runtime(binary, lock):
+    with tempfile.TemporaryDirectory(prefix='hc-runtime-', dir='/tmp') as tmp:
+        env = isolated_env(tmp)
+        if run(str(binary), '--version', capture=True, env=env).strip() != 'herdr ' + lock['version']:
+            raise ValueError('Built binary upstream version differs from the lock')
+        result = subprocess.run([str(binary), 'update'], env=env, capture_output=True, text=True, timeout=30)
+        if result.returncode == 0 or 'self-update is disabled for herdr-custom' not in result.stdout + result.stderr:
+            raise ValueError('Custom update guard failed')
 
 
 def build(source, lock, test):
@@ -81,18 +127,13 @@ def build(source, lock, test):
         elf = run('readelf', '--program-headers', '--dynamic', str(binary), capture=True)
         if 'INTERP' in elf or '(NEEDED)' in elf:
             raise ValueError('Linux release must not require a loader or shared libraries')
-    if run(str(binary), '--version', capture=True).strip() != 'herdr ' + lock['version']:
-        raise ValueError('Built binary upstream version differs from the lock')
-    with tempfile.TemporaryDirectory() as home:
-        isolated = dict(env, HOME=home, XDG_CONFIG_HOME=home + '/config',
-                        XDG_STATE_HOME=home + '/state', HERDR_CONFIG_PATH=home + '/config.toml')
-        result = subprocess.run([str(binary), 'update'], env=isolated, capture_output=True, text=True)
-        if result.returncode == 0 or 'self-update is disabled for herdr-custom' not in result.stdout + result.stderr:
-            raise ValueError('Custom update guard failed')
+    verify_runtime(binary, lock)
     return binary
 
 
-def package(binary, source, lock):
+def package(binary, source, lock, recipe_commit=None):
+    recipe_commit = clean_recipe(recipe_commit)
+    verify_prepared(source, lock)
     supported = {('Darwin', 'arm64'): 'macos-aarch64',
                  ('Linux', 'x86_64'): 'linux-x86_64'}
     platform_name = supported.get((platform.system(), platform.machine()))
@@ -115,12 +156,11 @@ def package(binary, source, lock):
             shutil.copy2(source / 'NOTICE', stage / 'UPSTREAM-NOTICE')
         shutil.copytree(ROOT / 'patches', stage / 'patches')
         provenance = dict(lock, platform=platform_name,
-                          recipe_commit=run('git', 'rev-parse', 'HEAD', capture=True).strip(),
+                          recipe_commit=recipe_commit,
                           binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest())
         (stage / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
-        with tempfile.TemporaryDirectory() as home:
-            isolated = dict(os.environ, HOME=home, XDG_CONFIG_HOME=home + '/config',
-                            XDG_STATE_HOME=home + '/state')
+        with tempfile.TemporaryDirectory(prefix='hc-package-', dir='/tmp') as home:
+            isolated = isolated_env(home)
             isolated.pop('HERDR_CONFIG_PATH', None)
             launcher = str(stage / 'bin/herdr-custom')
             run(launcher, '--version', env=isolated)
@@ -130,6 +170,9 @@ def package(binary, source, lock):
             tar.add(stage, arcname=name)
         checksum = hashlib.sha256(archive.read_bytes()).hexdigest()
         (dist / (archive.name + '.sha256')).write_text(checksum + '  ' + archive.name + '\n')
+        clean_recipe(recipe_commit)
+        run('python3', str(ROOT / 'scripts/verify_release.py'), '--recipe-commit', recipe_commit,
+            '--platform', platform_name, str(dist))
         print(archive)
 
 
@@ -138,13 +181,14 @@ def main():
     parser.add_argument('--source-cache', help='Optional existing Git checkout containing the pinned commit')
     parser.add_argument('--prepare-only', action='store_true')
     args = parser.parse_args()
+    recipe_commit = None if args.prepare_only else clean_recipe()
     lock = load_lock()
     source = prepare(lock, args.source_cache)
     if args.prepare_only:
         print(source)
         return
     binary = build(source, lock, test=True)
-    package(binary, source, lock)
+    package(binary, source, lock, recipe_commit)
 
 
 if __name__ == '__main__':

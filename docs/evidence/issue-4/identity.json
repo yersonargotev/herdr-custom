@@ -1,0 +1,8 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "custom_sha256": "4fe3fd331890eb33948f71c1fc1bc58b26cd5410376b8c461181e91ac20e6f1a",
+  "official_sha256": "fb77c2232a05a8035421382c894392f4174e4e38a18e48af3dd0290157c3a7e2",
+  "capture_method": "Actual live PTY bytes parsed into terminal cells and rendered to PNG. No native Terminal.app screenshot.",
+  "fixture_method": "Workspace display metadata and agent state reported through the real runtime API, not actual coding-agent detection."
+}

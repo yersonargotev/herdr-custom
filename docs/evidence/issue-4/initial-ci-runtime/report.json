@@ -1,0 +1,96 @@
+{
+  "started_utc": "2026-10-29T05:37:57.246831+00:00",
+  "platform": "Darwin-arm64",
+  "release": "/private/tmp/herdr-custom-issue-4/ci-pin-extracted/herdr-custom-0.9.5-custom.1-macos-aarch64",
+  "runtime_root": "/private/tmp/hc4-dpvyrnm3",
+  "upstream_commit": "2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01",
+  "distribution_version": "0.9.5-custom.1",
+  "binary_sha256": "4eb92b891ea2912f0f5f80b1f0c996b404e41f5e75d935f4a79477890a5a5b41",
+  "plugin_ref": "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df",
+  "checks": [
+    {
+      "name": "real launcher, symlink, config default and override, update guard",
+      "verdict": "VERIFIED",
+      "evidence": "commands.jsonl"
+    },
+    {
+      "name": "exact plugin installed through custom launcher",
+      "verdict": "VERIFIED",
+      "evidence": "installed-plugin.json"
+    },
+    {
+      "name": "startup publishes both Space Git tokens and per-pane projects",
+      "verdict": "VERIFIED",
+      "evidence": "startup.json"
+    },
+    {
+      "name": "explicit refresh resumes paused publication and reports modification",
+      "verdict": "VERIFIED",
+      "evidence": "refresh.json"
+    },
+    {
+      "name": "polling observes untracked file without action or focus command",
+      "verdict": "VERIFIED",
+      "evidence": "polling.json"
+    },
+    {
+      "name": "runtime supplies its private executable to real plugin hooks",
+      "verdict": "VERIFIED",
+      "evidence": "routing.jsonl"
+    }
+  ],
+  "verdict": "VERIFIED automated plugin checks",
+  "not_verified": [
+    "live terminal appearance and interactions",
+    "matching official server attach and detach",
+    "downgrade of persisted state"
+  ],
+  "packaged_provenance": {
+    "repository": "https://github.com/herdrdev/herdr.git",
+    "commit": "2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01",
+    "version": "0.9.5",
+    "distribution_version": "0.9.5-custom.1",
+    "rust": "1.96.1",
+    "zig": "0.16.0",
+    "patches": [
+      {
+        "path": "patches/compact-ui.patch",
+        "sha256": "c5e745bd8b4c2ba6404f10e180ba7a255a0d6fe3a3de239423f54b48426e34ab"
+      },
+      {
+        "path": "patches/disable-self-update.patch",
+        "sha256": "4ba52d76a3848684758cfc9dea56d6466f468d79720bd2f6de5d960d4ab7e18f"
+      },
+      {
+        "path": "patches/branch-status-alignment.patch",
+        "sha256": "d3cae1c16c3c44c50930328c88eb4d93ec7d88ccf4879488c5d8f390382ff310"
+      },
+      {
+        "path": "patches/space-selection-colors.patch",
+        "sha256": "24817488820e3c751c8264ffc35c170b43261867bf456ebf508fde1351fb46e6"
+      },
+      {
+        "path": "patches/agent-focus-colors.patch",
+        "sha256": "0335172c64b27fdafbe00d0b20bbe02a9992913b9684323a18a5a1f26ae18392"
+      }
+    ],
+    "platform": "macos-aarch64",
+    "recipe_commit": "7cb24d879099b0947024b1a4522d0612306025a1",
+    "binary_sha256": "4eb92b891ea2912f0f5f80b1f0c996b404e41f5e75d935f4a79477890a5a5b41"
+  },
+  "node_observer": {
+    "kind": "transparent logger then exec of real Node.js",
+    "node": "/opt/homebrew/Cellar/node/26.13.0/bin/node"
+  },
+  "agent_fixture": "Real report-agent API, not live Codex process detection",
+  "server_pid": 51331,
+  "cleanup_argv": [
+    "/private/tmp/herdr-custom-issue-4/ci-pin-extracted/herdr-custom-0.9.5-custom.1-macos-aarch64/bin/herdr-custom",
+    "server",
+    "stop"
+  ],
+  "cleanup_environment": "environment.json",
+  "runtime_retained": false,
+  "cleanup": "Owned server and watchers stopped; runtime root removed",
+  "finished_utc": "2026-10-29T05:38:12.910831+00:00"
+}

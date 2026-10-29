@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/herdrdev/herdr.git",
-  "commit": "7b116c05bfda646af39d2524c54e70c751f57ee8",
-  "version": "0.9.3",
-  "distribution_version": "0.9.3-custom.6",
+  "commit": "2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01",
+  "version": "0.9.5",
+  "distribution_version": "0.9.5-custom.1",
   "rust": "1.96.1",
   "zig": "0.16.0",
   "patches": [

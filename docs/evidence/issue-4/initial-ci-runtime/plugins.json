@@ -1,0 +1,151 @@
+[
+  {
+    "plugin_id": "yersonargotev.tab-git",
+    "name": "Tab Git Tokens",
+    "version": "1.4.0",
+    "min_herdr_version": "0.9.5",
+    "description": "Space Git tokens and per-pane project labels for Agents",
+    "manifest_path": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout/herdr-plugin.toml",
+    "plugin_root": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout",
+    "enabled": true,
+    "platforms": [
+      "linux",
+      "macos"
+    ],
+    "startup": [
+      {
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "clear",
+        "title": "Clear tab git tokens",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "run.sh",
+          "--clear"
+        ]
+      },
+      {
+        "id": "refresh",
+        "title": "Refresh tab git status",
+        "contexts": [
+          "workspace"
+        ],
+        "command": [
+          "sh",
+          "run.sh",
+          "--all",
+          "--resume"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "on": "pane.agent_detected",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "pane.closed",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "pane.created",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "pane.exited",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "pane.focused",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "pane.moved",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "tab.closed",
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ]
+      },
+      {
+        "on": "tab.created",
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ]
+      },
+      {
+        "on": "tab.focused",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      },
+      {
+        "on": "tab.moved",
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ]
+      },
+      {
+        "on": "tab.renamed",
+        "command": [
+          "sh",
+          "run.sh",
+          "--all"
+        ]
+      },
+      {
+        "on": "workspace.focused",
+        "command": [
+          "sh",
+          "run.sh"
+        ]
+      }
+    ],
+    "source": {
+      "kind": "github",
+      "owner": "yersonargotev",
+      "repo": "herdr-tab-git",
+      "requested_ref": "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df",
+      "resolved_commit": "5ef7d5a69ccfc7552d3cc81a1a7cfb059cb256df",
+      "managed_path": "/private/tmp/hc4-dpvyrnm3/config/herdr/plugins/github-installations/yersonargotev.tab-git-bcb29a050cc2/51285-0/checkout",
+      "installed_unix_ms": 1793252279795
+    }
+  }
+]
