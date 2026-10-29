@@ -50,6 +50,20 @@ jobs:
           key: ${{ matrix.os }}-${{ hashFiles('upstream.lock.json') }}
       - name: Build, test, and package
         run: python3 scripts/build.py
+      - name: Smoke-test the packaged runtime and Git plugin
+        env:
+          RELEASE_PLATFORM: ${{ runner.os == 'macOS' && 'macos-aarch64' || 'linux-x86_64' }}
+        run: |
+          release_name="herdr-custom-$(cat VERSION)-$RELEASE_PLATFORM"
+          mkdir -p .build/smoke-release
+          tar -xzf "dist/$release_name.tar.gz" -C .build/smoke-release
+          python3 scripts/smoke.py --release ".build/smoke-release/$release_name" --output .build/smoke-evidence
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        if: always()
+        with:
+          name: runtime-smoke-${{ matrix.os }}
+          path: .build/smoke-evidence/
+          if-no-files-found: warn
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: herdr-custom-${{ matrix.os }}
@@ -62,16 +76,21 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
+          pattern: herdr-custom-*
           path: dist
           merge-multiple: true
+      - name: Inspect both release archives
+        run: python3 scripts/verify_release.py --recipe-commit "$GITHUB_SHA" --platform all dist/
       - name: Publish verified binaries
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cd dist
-          sha256sum --check ./*.sha256
           gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag \
             --title "Herdr Custom ${GITHUB_REF_NAME#v}" \
             --notes 'Independent compact UI distribution. See README for installation, upstream version, configuration, compatibility, and rollback.' \
