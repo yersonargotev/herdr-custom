@@ -9,7 +9,7 @@ PASS for the measured macOS ARM64 PTY cases and matching 0.9.5 client/server com
 - Measured custom executable SHA-256 is `4fe3fd331890eb33948f71c1fc1bc58b26cd5410376b8c461181e91ac20e6f1a`.
 - Measured official 0.9.5 executable SHA-256 is `fb77c2232a05a8035421382c894392f4174e4e38a18e48af3dd0290157c3a7e2`.
 - Both executable digests remained unchanged after the checks.
-- `check.py` starts direct real server and TUI processes under fresh short `/tmp/h4v-*` roots. HOME, every XDG root, temporary files, configuration, and sockets are explicit and private. The command PATH contains `/usr/bin:/bin`; the actual Node executable is supplied explicitly for plugin hooks.
+- `check_terminal.py` starts direct real server and TUI processes under fresh short `/tmp/h4v-*` roots. HOME, every XDG root, temporary files, configuration, and sockets are explicit and private. The command PATH contains `/usr/bin:/bin`; the actual Node executable is supplied explicitly for plugin hooks.
 - Actual TUI output is captured through a controlling PTY. Raw `.ansi` files preserve those bytes. Pyte parses terminal cells, and Pillow renders those cells into `.png` files. The PNG files are recorded PTY renderings, not native Terminal.app screenshots.
 - Mouse checks send SGR mouse protocol events into the live client. Resize checks change the PTY dimensions and send SIGWINCH to that specific client.
 - Agent rows are deterministic fixtures reported through the real `pane report-agent` API. These checks prove report-and-render behavior, not detection of an actual Codex or Claude process.
@@ -66,7 +66,7 @@ All six final disposable server cases stopped successfully. Every recorded serve
 Run the retained script with a Python environment containing `pyte` and `Pillow`:
 
 ```sh
-/path/to/python3 check.py \
+/path/to/python3 check_terminal.py \
   --custom-release /path/to/extracted/custom/release \
   --official-binary /path/to/verified/official-0.9.5 \
   --output /path/to/owned/evidence
