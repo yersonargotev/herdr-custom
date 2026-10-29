@@ -29,7 +29,7 @@ class RecipeTests(unittest.TestCase):
                     recipe.load_lock()
             finally:
                 recipe.ROOT = original
-        self.assertEqual(recipe.load_lock()['version'], '0.9.3')
+        self.assertEqual(recipe.load_lock()['version'], '0.9.5')
 
     def test_launcher_handles_symlink_spaces_arguments_and_config_override(self):
         with tempfile.TemporaryDirectory(prefix='custom test ') as tmp:
@@ -42,7 +42,7 @@ class RecipeTests(unittest.TestCase):
             launcher.write_bytes((ROOT / 'scripts/herdr-custom').read_bytes())
             launcher.chmod(0o755)
             runtime = root / 'libexec/herdr'
-            runtime.write_text('#!/bin/sh\nif [ "$1" = --version ]; then echo "herdr 0.9.3"; else printf "%s\\n" "$HERDR_CONFIG_PATH" "$@"; fi\n')
+            runtime.write_text('#!/bin/sh\nif [ "$1" = --version ]; then echo "herdr 0.9.5"; else printf "%s\\n" "$HERDR_CONFIG_PATH" "$@"; fi\n')
             runtime.chmod(0o755)
             link = Path(tmp) / 'custom'
             link.symlink_to(launcher)
@@ -54,7 +54,7 @@ class RecipeTests(unittest.TestCase):
             output = subprocess.check_output([str(link), '--session', 'test'], env=env, text=True)
             self.assertEqual(output.splitlines()[0], '/explicit/config.toml')
             version = subprocess.check_output([str(link), '--version'], env=env, text=True)
-            self.assertEqual(version.strip(), 'herdr-custom test.1 (upstream herdr 0.9.3)')
+            self.assertEqual(version.strip(), 'herdr-custom test.1 (upstream herdr 0.9.5)')
 
 
 if __name__ == '__main__':
